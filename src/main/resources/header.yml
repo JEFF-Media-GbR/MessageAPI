@@ -1,0 +1,14 @@
+# The following formatting options are available:
+
+# MiniMessage
+#
+#   MiniMessage supports all kinds of formatting, like hex colors, color gradients, hover and click events, and more.
+#   See here for an overview about all MiniMessage features: https://docs.adventure.kyori.net/minimessage/format.html
+#
+#   Example: "<green><bold><underlined><hover:show_text:'URL: www.jeff-media.com'><click:open_url:'https://jeff-media.com'>CLICK HERE</click></hover></underlined> to visit our website!"
+
+# PlaceholderAPI
+#
+#   Messages containing %placeholders% will be replaced automatically.
+#
+#   Example: "%player_name% has joined the game."
