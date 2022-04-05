@@ -63,13 +63,10 @@ public class LanguageFileUtils {
     private static void applyDirtyHack(ConfigurationSection section) {
         for(String key : section.getKeys(true)) {
             if(section.isConfigurationSection(key)) continue;
-            System.out.println("Applying dirty hack to " + key);
             if(section.isString(key)) {
-                System.out.println("It's a string");
                 section.set(key, DIRTY_HACK + section.getString(key));
             }
             List<String> list = section.getStringList(key);
-            System.out.println("It's a list");
             for(int i = 0; i < list.size(); i++) {
                 list.set(i,DIRTY_HACK + list.get(i));
             }
