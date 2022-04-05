@@ -1,6 +1,6 @@
-package com.jeff_media.messages.formatters.plugin;
+package com.jeff_media.messageapi.formatters.plugin;
 
-import com.jeff_media.messages.formatters.PluginMessageFormatter;
+import com.jeff_media.messageapi.formatters.PluginMessageFormatter;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;

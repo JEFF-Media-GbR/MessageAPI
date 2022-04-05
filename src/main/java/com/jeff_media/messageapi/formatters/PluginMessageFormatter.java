@@ -1,4 +1,4 @@
-package com.jeff_media.messages.formatters;
+package com.jeff_media.messageapi.formatters;
 
 import org.bukkit.plugin.Plugin;
 

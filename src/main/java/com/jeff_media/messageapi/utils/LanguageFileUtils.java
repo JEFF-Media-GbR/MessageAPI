@@ -1,5 +1,6 @@
-package com.jeff_media.messages;
+package com.jeff_media.messageapi.utils;
 
+import com.jeff_media.messageapi.Msg;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.io.*;
@@ -69,7 +70,7 @@ public class LanguageFileUtils {
     }
 
     public static File getFile(String name) {
-        File folder = Msg.languageFolderFile;
+        File folder = Msg.getLanguageFolderFile();
         File[] files = folder.listFiles((dir, test) -> test.equalsIgnoreCase(name) || test.equalsIgnoreCase(name + ".yml") || test.equalsIgnoreCase(name + ".yaml"));
         if (files != null && files.length > 0) return files[0];
         return null;

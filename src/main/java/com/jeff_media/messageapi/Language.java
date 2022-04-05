@@ -1,5 +1,6 @@
-package com.jeff_media.messages;
+package com.jeff_media.messageapi;
 
+import com.jeff_media.messageapi.message.Message;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 

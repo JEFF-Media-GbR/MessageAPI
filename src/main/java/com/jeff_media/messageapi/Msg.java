@@ -1,10 +1,14 @@
-package com.jeff_media.messages;
+package com.jeff_media.messageapi;
 
-import com.jeff_media.messages.formatters.MessageFormatter;
-import com.jeff_media.messages.formatters.PluginMessageFormatter;
-import com.jeff_media.messages.formatters.plugin.ItemsAdderFormatter;
-import com.jeff_media.messages.formatters.plugin.PlaceholderAPIFormatter;
-import com.jeff_media.messages.formatters.vanilla.LegacyChatColorFormatter;
+import com.jeff_media.messageapi.formatters.MessageFormatter;
+import com.jeff_media.messageapi.formatters.PluginMessageFormatter;
+import com.jeff_media.messageapi.formatters.plugin.ItemsAdderFormatter;
+import com.jeff_media.messageapi.formatters.plugin.PlaceholderAPIFormatter;
+import com.jeff_media.messageapi.formatters.vanilla.LegacyChatColorFormatter;
+import com.jeff_media.messageapi.formatters.vanilla.LegacyHexColorFormatter;
+import com.jeff_media.messageapi.message.Message;
+import com.jeff_media.messageapi.message.TitleMessage;
+import com.jeff_media.messageapi.utils.LanguageFileUtils;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -26,12 +30,16 @@ import java.util.function.Supplier;
 
 public class Msg {
 
-    static final String LANGUAGE_FOLDER_NAME = "languages";
+    public static final String LANGUAGE_FOLDER_NAME = "languages";
     private static final List<MessageFormatter> MESSAGE_FORMATTERS = new ArrayList<>();
     static File languageFolderFile;
     private static BukkitAudiences audience;
     private static Plugin plugin;
     private static Language language;
+
+    public static File getLanguageFolderFile() {
+        return languageFolderFile;
+    }
 
     public static void init(Plugin plugin, String language) {
         Msg.plugin = plugin;
@@ -55,14 +63,15 @@ public class Msg {
         }
     }
 
-    public static Map<String,Message> getMessages() {
+    public static Map<String, Message> getMessages() {
         return language.messages;
     }
 
     private static void registerMessageFormatters() {
-        registerPluginFormatter("PlaceholderAPI", PlaceholderAPIFormatter::new);
+        registerFormatter(LegacyHexColorFormatter::new);
+        /*registerPluginFormatter("PlaceholderAPI", PlaceholderAPIFormatter::new);
         registerPluginFormatter("ItemsAdder", ItemsAdderFormatter::new);
-        registerFormatter(LegacyChatColorFormatter::new);
+        registerFormatter(LegacyChatColorFormatter::new);*/
     }
 
     private static void saveLanguageFiles() {
@@ -113,11 +122,17 @@ public class Msg {
         return language.messages.get(name);
     }
 
-    static List<MessageFormatter> getMessageFormatters() {
+    public static TitleMessage getTitle(String titleName, String subTitleName) {
+        Message title = titleName == null ? Message.EMPTY : language.messages.get(titleName);
+        Message subTitle = subTitleName == null ? Message.EMPTY : language.messages.get(subTitleName);
+        return new TitleMessage(title, subTitle);
+    }
+
+    public static List<MessageFormatter> getMessageFormatters() {
         return MESSAGE_FORMATTERS;
     }
 
-    static BukkitAudiences getAudience() {
+    public static BukkitAudiences audience() {
         return audience;
     }
 

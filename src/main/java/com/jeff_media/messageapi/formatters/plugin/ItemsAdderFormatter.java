@@ -1,6 +1,6 @@
-package com.jeff_media.messages.formatters.plugin;
+package com.jeff_media.messageapi.formatters.plugin;
 
-import com.jeff_media.messages.formatters.PluginMessageFormatter;
+import com.jeff_media.messageapi.formatters.PluginMessageFormatter;
 import dev.lone.itemsadder.api.FontImages.FontImageWrapper;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;

@@ -24,7 +24,7 @@
                     <relocations>
                         <relocation>
                             <pattern>net.kyori</pattern>
-                            <shadedPattern>com.jeff_media.messages.libs.net.kyori</shadedPattern>
+                            <shadedPattern>com.jeff_media.messageapi.libs.net.kyori</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>
@@ -145,6 +145,12 @@
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations-java5</artifactId>
             <version>23.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.kyori</groupId>
+            <artifactId>adventure-text-serializer-plain</artifactId>
+            <version>4.10.1</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

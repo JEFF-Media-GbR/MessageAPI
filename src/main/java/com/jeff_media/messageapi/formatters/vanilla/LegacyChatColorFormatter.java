@@ -1,24 +1,26 @@
-package com.jeff_media.messages.formatters.vanilla;
+package com.jeff_media.messageapi.formatters.vanilla;
 
-import com.jeff_media.messages.formatters.MessageFormatter;
-import net.md_5.bungee.api.ChatColor;
+import com.jeff_media.messageapi.formatters.MessageFormatter;
 import org.bukkit.command.CommandSender;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class LegacyChatColorFormatter extends MessageFormatter {
 
     private static final char COLOR_CODE_CHAR = '&';
     private static final char LEGACY_COLOR_CODE_CHAR = '§';
-    private static final String COLOR_CODES = "0123456789AaBbCcDdEeFfKkLlMmNnOoRr";
+    public static final String COLOR_CODES = "0123456789AaBbCcDdEeFfKkLlMmNnOoRr";
+    private static final int COLOR_CODE_LENGTH = 2;
 
     @Override
     public String format(String string, CommandSender player) {
         return translateLegacyColorCodes(string);
     }
 
-    private static boolean isColorCodeChar(char character) {
+    public static boolean isColorCodeChar(char character) {
         // Yes, both are needed.
         return character == COLOR_CODE_CHAR || character == LEGACY_COLOR_CODE_CHAR;
     }
@@ -26,7 +28,14 @@ public class LegacyChatColorFormatter extends MessageFormatter {
     private static String translateLegacyColorCodes(String text) {
         char[] b = text.toCharArray();
         StringBuilder buffer = new StringBuilder();
-        for(int i = 0; i < b.length - 1; ++i) {
+        applyRegularColors(b, buffer);
+        return buffer.toString();
+    }
+
+
+
+    private static void applyRegularColors(char[] b, StringBuilder buffer) {
+        for(int i = 0; i < b.length - COLOR_CODE_LENGTH + 1; ++i) {
             // TODO: Legacy Hex Colors
             if (isColorCodeChar(b[i]) && COLOR_CODES.indexOf(b[i + 1]) > -1) {
                 LegacyColor color = LegacyColor.of(b[i+1]);
@@ -36,7 +45,6 @@ public class LegacyChatColorFormatter extends MessageFormatter {
                 buffer.append(b[i]);
             }
         }
-        return buffer.toString();
     }
 
     static class LegacyColor {
