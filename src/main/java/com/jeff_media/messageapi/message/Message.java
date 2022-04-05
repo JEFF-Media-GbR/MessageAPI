@@ -37,14 +37,13 @@ public class Message extends AbstractMessage {
 
     private final List<String> lines;
 
-    public Message(String line) {
+    public Message(final String line) {
         this(Collections.singletonList(line));
     }
 
-    public Message(List<String> lines) {
-        this.lines = lines.stream().map(line ->
-                line == null ? "" : line
-        ).collect(Collectors.toList());
+    public Message(final List<String> lines) {
+        super();
+        this.lines = lines.stream().map(line -> line == null ? "" : line).collect(Collectors.toList());
     }
 
     /**
@@ -55,15 +54,15 @@ public class Message extends AbstractMessage {
      * @return A new instance of this message, with replaced placeholders
      */
     @Override
-    public Message placeholders(CommandSender sender) {
+    public Message placeholders(final CommandSender sender) {
         return new Message(lines.stream().map(line -> applyPluginPlaceholders(line, sender)).collect(Collectors.toList()));
     }
 
-    private String applyPluginPlaceholders(String line, CommandSender sender) {
-        for (MessageFormatter hook : Msg.getMessageFormatters()) {
-            String oldLine = line;
+    private String applyPluginPlaceholders(String line, final CommandSender sender) {
+        for (final MessageFormatter hook : Msg.getMessageFormatters()) {
+            final String oldLine = line;
             line = hook.format(line, sender);
-            if(!oldLine.equals(line)) {
+            if (!oldLine.equals(line)) {
                 System.out.println(hook.getClass().getSimpleName() + " has changed the text:");
                 System.out.println("Before: " + Arrays.toString(oldLine.toCharArray()));
                 System.out.println("After : " + Arrays.toString(line.toCharArray()));
@@ -87,7 +86,7 @@ public class Message extends AbstractMessage {
      * </pre>
      */
     @Override
-    public Message replace(String... placeholders) {
+    public Message replace(final String... placeholders) {
         if (placeholders.length % 2 != 0) {
             throw new IllegalArgumentException("Length of replacement array must be a multiple of two");
         }
@@ -98,6 +97,13 @@ public class Message extends AbstractMessage {
             return line;
         }).collect(Collectors.toList()));
 
+    }
+
+    /**
+     * Sends a chat message to the given {@link CommandSender}. Supports all kinds of features such as Click and Hover events.
+     */
+    public void sendTo(final CommandSender sender) {
+        components().forEach(component -> Msg.audience().sender(sender).sendMessage(component));
     }
 
     /**
@@ -112,18 +118,11 @@ public class Message extends AbstractMessage {
     }
 
     /**
-     * Sends a chat message to the given {@link CommandSender}. Supports all kinds of features such as Click and Hover events.
-     */
-    public void sendTo(CommandSender sender) {
-        components().forEach(component -> Msg.audience().sender(sender).sendMessage(component));
-    }
-
-    /**
      * Sends an actionbar message to all online players matching the given {@link Predicate}.
      *
      * @see #sendActionbarTo(CommandSender)
      */
-    public void sendActionbarTo(Predicate<Player> predicate) {
+    public void sendActionbarTo(final Predicate<? super Player> predicate) {
         players(predicate).forEach(this::sendActionbarTo);
     }
 
@@ -131,13 +130,13 @@ public class Message extends AbstractMessage {
      * Sends an actionbar message to the given {@link CommandSender}. If this message contains of more than one line, only
      * the first line will be sent. Click and Hover events will be lost.
      */
-    public void sendActionbarTo(CommandSender sender) {
+    public void sendActionbarTo(final CommandSender sender) {
         Msg.audience().sender(sender).sendActionBar(getFirstLineAsAdventureComponent());
     }
 
     public @NotNull Component getFirstLineAsAdventureComponent() {
         final String firstLine = getFirstLine();
-        if(firstLine.isEmpty()) {
+        if (firstLine.isEmpty()) {
             return Component.empty();
         } else {
             return MINIMESSAGE.deserialize(firstLine);
@@ -145,7 +144,7 @@ public class Message extends AbstractMessage {
     }
 
     private @NotNull String getFirstLine() {
-        if (lines.size() == 0) return "";
+        if (lines.isEmpty()) return "";
         return lines.get(0);
     }
 
@@ -202,15 +201,15 @@ public class Message extends AbstractMessage {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Message message = (Message) o;
+    public boolean equals(final Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        final Message message = (Message) obj;
         return lines.equals(message.lines);
     }
 
     @Override
     public String toString() {
-        return "Message{" + "lines=" + lines + '}';
+        return "Message{" + "lines=" + lines + "}";
     }
 }

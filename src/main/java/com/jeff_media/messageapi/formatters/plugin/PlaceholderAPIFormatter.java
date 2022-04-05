@@ -8,12 +8,12 @@ import org.bukkit.plugin.Plugin;
 
 public class PlaceholderAPIFormatter extends PluginMessageFormatter {
 
-    public PlaceholderAPIFormatter(Plugin plugin) {
+    public PlaceholderAPIFormatter(final Plugin plugin) {
         super(plugin);
     }
 
     @Override
-    public String format(String string, CommandSender sender) {
+    public String format(final String string, final CommandSender sender) {
         return PlaceholderAPI.setPlaceholders(sender instanceof OfflinePlayer ? (OfflinePlayer) sender : null, string);
     }
 }

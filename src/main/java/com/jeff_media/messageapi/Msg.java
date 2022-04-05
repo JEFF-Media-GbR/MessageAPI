@@ -12,57 +12,48 @@ import com.jeff_media.messageapi.utils.LanguageFileUtils;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 
-import java.io.*;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
+import java.util.logging.Logger;
 
 public class Msg {
 
-    public static final String LANGUAGE_FOLDER_NAME = "languages";
+    private static final String LANGUAGE_FOLDER_NAME = "languages";
     private static final List<MessageFormatter> MESSAGE_FORMATTERS = new ArrayList<>();
     static File languageFolderFile;
     private static BukkitAudiences audience;
     private static Plugin plugin;
+    private static Logger logger;
     private static Language language;
 
     public static File getLanguageFolderFile() {
         return languageFolderFile;
     }
 
-    public static void init(Plugin plugin, String language) {
-        Msg.plugin = plugin;
-        Msg.audience = BukkitAudiences.create(plugin);
-        Msg.languageFolderFile = new File(plugin.getDataFolder(), LANGUAGE_FOLDER_NAME);
-        Msg.languageFolderFile.mkdirs();
-        registerMessageFormatters();
-        saveLanguageFiles();
-        File languageFile = LanguageFileUtils.getFile(language);
-        if (languageFile == null) {
-            plugin.getLogger().severe("Could not find language file \"" + language + "\". Falling back to included default translation.");
-            languageFile = LanguageFileUtils.getFile("english.yml");
-        }
-        try {
-            Msg.language = new Language(languageFile);
-        } catch (InvalidConfigurationException e) {
-            plugin.getLogger().severe("Could not read language file \"" + languageFile.getName() + "\", please check if it's valid YAML.");
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public static Logger getLogger() {
+        return logger;
     }
 
-    public static Map<String, Message> getMessages() {
-        return language.messages;
+    public static String getLanguageFolderName() {
+        return LANGUAGE_FOLDER_NAME;
+    }
+
+    public static void init(final Plugin plugin, final String language) {
+        Msg.plugin = plugin;
+        logger = plugin.getLogger();
+        audience = BukkitAudiences.create(plugin);
+        languageFolderFile = new File(plugin.getDataFolder(), LANGUAGE_FOLDER_NAME);
+        languageFolderFile.mkdirs();
+        registerMessageFormatters();
+        LanguageFileUtils.saveLanguageFiles();
+        loadLanguageFile(language);
     }
 
     private static void registerMessageFormatters() {
@@ -72,61 +63,48 @@ public class Msg {
         registerFormatter(SingleColorCodeFormatter::new);
     }
 
-    private static void saveLanguageFiles() {
-        URL url = Msg.class.getResource("/" + LANGUAGE_FOLDER_NAME + "/");
-        if (url == null) {
-            throw new IllegalStateException(".jar file does not contain languages/ folder");
+    private static void loadLanguageFile(final String language) {
+        File languageFile = LanguageFileUtils.getFile(language);
+        if (languageFile == null) {
+            plugin.getLogger().severe("Could not find language file \"" + language + "\". Falling back to included default translation.");
+            languageFile = LanguageFileUtils.getFile("english.yml");
         }
-
-        try (final InputStream inputStream = Msg.class.getResourceAsStream("/" + LANGUAGE_FOLDER_NAME + "/english.yml");
-             final InputStreamReader inputStreamReader = new InputStreamReader(Objects.requireNonNull(inputStream))
-        ) {
-            YamlConfiguration includedEnglishTranslation = YamlConfiguration.loadConfiguration(inputStreamReader);
-            for (Path includedFile : LanguageFileUtils.getAllIncludedTranslations()) {
-                File alreadySavedFile = new File(languageFolderFile, includedFile.getFileName().toString());
-                String resourceFileName = "/" + LANGUAGE_FOLDER_NAME + "/" + includedFile.getFileName().toString();
-                try (InputStream includedFileAsStream = LanguageFileUtils.getFileFromResourceAsStream(resourceFileName);
-                     InputStreamReader includedFileAsReader = new InputStreamReader(includedFileAsStream)
-                ) {
-                    final FileConfiguration includedTranslation = YamlConfiguration.loadConfiguration(includedFileAsReader);
-                    if (!alreadySavedFile.exists()) {
-                        LanguageFileUtils.copyFileToFile(includedFileAsStream, alreadySavedFile);
-                        plugin.getLogger().info("Saved default translation file \"" + includedFile.getFileName().toString() + "\"");
-                    }
-                    final YamlConfiguration alreadySavedTranslation = YamlConfiguration.loadConfiguration(alreadySavedFile);
-                    if (LanguageFileUtils.merge(alreadySavedTranslation, includedTranslation, includedEnglishTranslation)) {
-                        plugin.getLogger().info("Updated translation \"" + includedFile.getFileName().toString() + "\"");
-                        //alreadySavedTranslation.save(alreadySavedFile);
-                        String yamlDump = alreadySavedTranslation.saveToString();
-                        try(InputStream target = new ByteArrayInputStream(yamlDump.getBytes(StandardCharsets.UTF_8))) {
-                            LanguageFileUtils.copyFileToFile(target, alreadySavedFile);
-                        }
-                    }
-                }
+        try {
+            Msg.language = Language.fromFile(languageFile);
+        } catch (final InvalidConfigurationException e) {
+            plugin.getLogger().severe("Could not read language file \"" + Objects.requireNonNull(languageFile).getName() + "\", please check if it's valid YAML. Falling back to included default translation.");
+            try {
+                Msg.language = Language.fromInputStream(plugin.getResource(LANGUAGE_FOLDER_NAME + "/english.yml"));
+            } catch (final IOException | InvalidConfigurationException ex) {
+                throw new IllegalStateException("Could neither load the given language file, nor the saved default language file, nor the included default language file!");
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
         }
     }
 
-    private static void registerFormatter(Supplier<MessageFormatter> supplier) {
+    private static void registerFormatter(final Supplier<? extends MessageFormatter> supplier) {
         MESSAGE_FORMATTERS.add(supplier.get());
     }
 
-    private static void registerPluginFormatter(String pluginName, PluginMessageFormatter.Constructor constructor) {
+    private static void registerPluginFormatter(final String pluginName, final PluginMessageFormatter.Constructor constructor) {
         final Plugin plugin = Bukkit.getPluginManager().getPlugin(pluginName);
         if (plugin != null) {
             MESSAGE_FORMATTERS.add(constructor.create(plugin));
         }
     }
 
-    public static Message get(String name) {
+    public static Map<String, Message> getMessages() {
+        return language.messages;
+    }
+
+    public static Message get(final String name) {
         return language.messages.get(name);
     }
 
-    public static TitleMessage getTitle(String titleName, String subTitleName) {
-        Message title = titleName == null ? Message.EMPTY : language.messages.get(titleName);
-        Message subTitle = subTitleName == null ? Message.EMPTY : language.messages.get(subTitleName);
+    public static TitleMessage getTitle(final String titleName, final String subTitleName) {
+        final Message title = titleName == null ? Message.EMPTY : language.messages.get(titleName);
+        final Message subTitle = subTitleName == null ? Message.EMPTY : language.messages.get(subTitleName);
         return new TitleMessage(title, subTitle);
     }
 

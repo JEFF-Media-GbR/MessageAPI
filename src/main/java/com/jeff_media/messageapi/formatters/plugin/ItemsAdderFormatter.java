@@ -7,12 +7,12 @@ import org.bukkit.plugin.Plugin;
 
 public class ItemsAdderFormatter extends PluginMessageFormatter {
 
-    public ItemsAdderFormatter(Plugin plugin) {
+    public ItemsAdderFormatter(final Plugin plugin) {
         super(plugin);
     }
 
     @Override
-    public String format(String string, CommandSender player) {
+    public String format(final String string, final CommandSender player) {
         return FontImageWrapper.replaceFontImages(string);
     }
 }

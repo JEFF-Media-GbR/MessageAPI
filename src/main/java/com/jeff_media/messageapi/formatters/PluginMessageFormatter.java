@@ -6,7 +6,8 @@ public abstract class PluginMessageFormatter extends MessageFormatter {
 
     private final Plugin plugin;
 
-    public PluginMessageFormatter(Plugin plugin) {
+    public PluginMessageFormatter(final Plugin plugin) {
+        super();
         this.plugin = plugin;
     }
 
