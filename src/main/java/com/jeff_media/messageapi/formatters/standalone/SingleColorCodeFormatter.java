@@ -20,7 +20,6 @@ public class SingleColorCodeFormatter extends ColorCodeFormatter {
 
     private static void applyRegularColors(final char[] arr, final StringBuilder buffer) {
         for (int i = 0; i < arr.length/* - COLOR_CODE_LENGTH + 1*/; ++i) {
-            System.out.println("Input: " + arr[i]);
             if (i + 1 < arr.length && isColorCodeChar(arr[i]) && isPartOf(arr[i + 1], LEGACY_COLOR_AND_FORMATTING_CODES)) {
                 final LegacyColor color = LegacyColor.of(arr[i + 1]);
                 buffer.append(color.toAdventureTag());

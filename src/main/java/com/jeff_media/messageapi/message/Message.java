@@ -62,12 +62,6 @@ public class Message extends AbstractMessage {
         for (final MessageFormatter hook : Msg.getMessageFormatters()) {
             final String oldLine = line;
             line = hook.format(line, sender);
-            if (!oldLine.equals(line)) {
-                System.out.println(hook.getClass().getSimpleName() + " has changed the text:");
-                System.out.println("Before: " + Arrays.toString(oldLine.toCharArray()));
-                System.out.println("After : " + Arrays.toString(line.toCharArray()));
-                System.out.println(" ");
-            }
         }
         return line;
     }

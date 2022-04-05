@@ -23,12 +23,6 @@ public abstract class ColorCodeFormatter extends MessageFormatter {
         return character == COLOR_CODE_CHAR || character == LEGACY_COLOR_CODE_CHAR;
     }
 
-    protected static void debug(final char[] arr) {
-        for (int i = 0; i < arr.length; i++) {
-            System.out.println(i + " -> " + arr[i]);
-        }
-    }
-
     protected static boolean isPartOf(final char character, final String string) {
         return string.indexOf(character) > -1;
     }

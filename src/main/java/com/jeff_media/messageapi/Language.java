@@ -27,7 +27,6 @@ public class Language {
                 list = config.getStringList(key);
             }
             final Message message = new Message(list);
-            System.out.println("Loaded message: " + key + " -> " + message);
             messages.put(key, message);
         }
     }
