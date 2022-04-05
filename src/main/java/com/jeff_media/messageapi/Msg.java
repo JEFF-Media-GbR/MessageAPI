@@ -12,7 +12,10 @@ import com.jeff_media.messageapi.utils.LanguageFileUtils;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,6 +26,9 @@ import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
+/**
+ * Main MessageAPI class. This should be the entry point for everything you do using this API.
+ */
 public class Msg {
 
     private static final String LANGUAGE_FOLDER_NAME = "languages";
@@ -45,7 +51,12 @@ public class Msg {
         return LANGUAGE_FOLDER_NAME;
     }
 
-    public static void init(final Plugin plugin, final String language) {
+    /**
+     * Initialize MessageAPI. Required before other methods can be used.
+     * @param plugin Your plugin's instance
+     * @param language Language file to use. The file extension can be omitted if it's .yml or .yaml. If it doesn't exist, or is invalid, it falls back to the saved or included "english.yml" file.
+     */
+    public static void init(@NotNull final Plugin plugin, @NotNull final String language) {
         Msg.plugin = plugin;
         logger = plugin.getLogger();
         audience = BukkitAudiences.create(plugin);
@@ -94,24 +105,41 @@ public class Msg {
         }
     }
 
+    /**
+     * Returns all {@link Message}s
+     */
+    @NotNull
     public static Map<String, Message> getMessages() {
         return language.messages;
     }
 
-    public static Message get(final String name) {
+    /**
+     * Gets a {@link Message} by its fully qualified name
+     */
+    @Nullable
+    public static Message get(@NotNull final String name) {
         return language.messages.get(name);
     }
 
-    public static TitleMessage getTitle(final String titleName, final String subTitleName) {
+    /**
+     * Gets a {@link TitleMessage}, consisting of two {@link Message}s. Either of those can be null.
+     */
+    @NotNull
+    public static TitleMessage getTitle(@Nullable final String titleName, @Nullable final String subTitleName) {
         final Message title = titleName == null ? Message.EMPTY : language.messages.get(titleName);
         final Message subTitle = subTitleName == null ? Message.EMPTY : language.messages.get(subTitleName);
         return new TitleMessage(title, subTitle);
     }
 
+    /**
+     * Gets a {@link List} of all registered {@link MessageFormatter}s
+     */
+    @NotNull
     public static List<MessageFormatter> getMessageFormatters() {
         return MESSAGE_FORMATTERS;
     }
 
+    @NotNull
     public static BukkitAudiences audience() {
         return audience;
     }

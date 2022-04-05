@@ -46,13 +46,7 @@ public class Message extends AbstractMessage {
         this.lines = lines.stream().map(line -> line == null ? "" : line).collect(Collectors.toList());
     }
 
-    /**
-     * Returns a new Message with all plugin-provided placeholders applied (PlaceholderAPI, ItemsAdder emojis, ...).
-     *
-     * @param sender The CommandSender for which the placeholder should be replaced. For example, %player_name% will be
-     *               replaced with the name of this CommandSender.
-     * @return A new instance of this message, with replaced placeholders
-     */
+
     @Override
     public Message placeholders(final CommandSender sender) {
         return new Message(lines.stream().map(line -> applyPluginPlaceholders(line, sender)).collect(Collectors.toList()));
@@ -66,19 +60,6 @@ public class Message extends AbstractMessage {
         return line;
     }
 
-    /**
-     * Returns a new Message with the given replacements applied. Every even-indexed String in the given array
-     * is a String to replace, every odd-indexed String is the corresponding replacement.
-     * <p>
-     * Example:
-     * <pre>
-     * Message message = Msg.get("join-message").replace(
-     *     "{player}", event.getPlayer().getName(),
-     *     "{world}", event.getPlayer().getWorld().getName()
-     * );
-     * message.sendToAll();
-     * </pre>
-     */
     @Override
     public Message replace(final String... placeholders) {
         if (placeholders.length % 2 != 0) {
@@ -93,9 +74,7 @@ public class Message extends AbstractMessage {
 
     }
 
-    /**
-     * Sends a chat message to the given {@link CommandSender}. Supports all kinds of features such as Click and Hover events.
-     */
+
     public void sendTo(final CommandSender sender) {
         components().forEach(component -> Msg.audience().sender(sender).sendMessage(component));
     }
