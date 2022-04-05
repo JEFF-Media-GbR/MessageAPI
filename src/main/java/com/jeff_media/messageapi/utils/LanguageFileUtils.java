@@ -2,10 +2,15 @@ package com.jeff_media.messageapi.utils;
 
 import com.jeff_media.messageapi.Msg;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.configuration.file.YamlConfigurationOptions;
+import org.yaml.snakeyaml.DumperOptions;
 
 import java.io.*;
+import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -17,8 +22,11 @@ import java.util.stream.Collectors;
 
 public class LanguageFileUtils {
 
-    public static boolean merge(ConfigurationSection savedFile, ConfigurationSection includedTranslation, ConfigurationSection includedEnglishTranslation) {
+    private static final String DIRTY_HACK = "{{&x__&x}}";
+
+    public static boolean merge(YamlConfiguration savedFile, ConfigurationSection includedTranslation, ConfigurationSection includedEnglishTranslation) {
         boolean changed = false;
+        //hackDumperOptions(savedFile);
         for (String key : includedEnglishTranslation.getKeys(true)) {
             final Object includedEnglish = includedEnglishTranslation.get(key);
             final Object included = includedTranslation.get(key, includedEnglish);
@@ -37,7 +45,36 @@ public class LanguageFileUtils {
                 savedFile.setComments(key, defaultComments);
             }
         }
+        applyDirtyHack(savedFile);
         return changed;
+    }
+
+    private static void hackDumperOptions(YamlConfiguration savedFile) {
+        try {
+            Field field = YamlConfiguration.class.getDeclaredField("yamlDumperOptions");
+            field.setAccessible(true);
+            DumperOptions options = (DumperOptions) field.get(savedFile);
+            options.setDefaultScalarStyle(DumperOptions.ScalarStyle.DOUBLE_QUOTED);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void applyDirtyHack(ConfigurationSection section) {
+        for(String key : section.getKeys(true)) {
+            if(section.isConfigurationSection(key)) continue;
+            System.out.println("Applying dirty hack to " + key);
+            if(section.isString(key)) {
+                System.out.println("It's a string");
+                section.set(key, DIRTY_HACK + section.getString(key));
+            }
+            List<String> list = section.getStringList(key);
+            System.out.println("It's a list");
+            for(int i = 0; i < list.size(); i++) {
+                list.set(i,DIRTY_HACK + list.get(i));
+            }
+            section.set(key, list);
+        }
     }
 
     public static List<Path> getAllIncludedTranslations() {
@@ -77,9 +114,17 @@ public class LanguageFileUtils {
     }
 
     public static void copyFileToFile(InputStream stream, File output) {
-        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream)); FileWriter writer = new FileWriter(output); BufferedWriter bufferedWriter = new BufferedWriter(writer);) {
+        try (
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8));
+                FileWriter writer = new FileWriter(output); BufferedWriter bufferedWriter = new BufferedWriter(writer)
+        ) {
             String line;
             while ((line = bufferedReader.readLine()) != null) {
+                if(line.contains(DIRTY_HACK)) {
+                    int start = line.indexOf(DIRTY_HACK);
+                    int end = start + DIRTY_HACK.length();
+                    line = line.substring(0,start) + line.substring(end);
+                }
                 bufferedWriter.write(line);
                 bufferedWriter.newLine();
             }

@@ -4,8 +4,8 @@ import com.jeff_media.messageapi.formatters.MessageFormatter;
 import com.jeff_media.messageapi.formatters.PluginMessageFormatter;
 import com.jeff_media.messageapi.formatters.plugin.ItemsAdderFormatter;
 import com.jeff_media.messageapi.formatters.plugin.PlaceholderAPIFormatter;
-import com.jeff_media.messageapi.formatters.vanilla.LegacyChatColorFormatter;
-import com.jeff_media.messageapi.formatters.vanilla.LegacyHexColorFormatter;
+import com.jeff_media.messageapi.formatters.standalone.HexColorCodeFormatter;
+import com.jeff_media.messageapi.formatters.standalone.SingleColorCodeFormatter;
 import com.jeff_media.messageapi.message.Message;
 import com.jeff_media.messageapi.message.TitleMessage;
 import com.jeff_media.messageapi.utils.LanguageFileUtils;
@@ -16,11 +16,9 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,10 +66,10 @@ public class Msg {
     }
 
     private static void registerMessageFormatters() {
-        registerFormatter(LegacyHexColorFormatter::new);
-        /*registerPluginFormatter("PlaceholderAPI", PlaceholderAPIFormatter::new);
+        registerFormatter(HexColorCodeFormatter::new);
+        registerPluginFormatter("PlaceholderAPI", PlaceholderAPIFormatter::new);
         registerPluginFormatter("ItemsAdder", ItemsAdderFormatter::new);
-        registerFormatter(LegacyChatColorFormatter::new);*/
+        registerFormatter(SingleColorCodeFormatter::new);
     }
 
     private static void saveLanguageFiles() {
@@ -95,10 +93,14 @@ public class Msg {
                         LanguageFileUtils.copyFileToFile(includedFileAsStream, alreadySavedFile);
                         plugin.getLogger().info("Saved default translation file \"" + includedFile.getFileName().toString() + "\"");
                     }
-                    final FileConfiguration alreadySavedTranslation = YamlConfiguration.loadConfiguration(alreadySavedFile);
+                    final YamlConfiguration alreadySavedTranslation = YamlConfiguration.loadConfiguration(alreadySavedFile);
                     if (LanguageFileUtils.merge(alreadySavedTranslation, includedTranslation, includedEnglishTranslation)) {
                         plugin.getLogger().info("Updated translation \"" + includedFile.getFileName().toString() + "\"");
-                        alreadySavedTranslation.save(alreadySavedFile);
+                        //alreadySavedTranslation.save(alreadySavedFile);
+                        String yamlDump = alreadySavedTranslation.saveToString();
+                        try(InputStream target = new ByteArrayInputStream(yamlDump.getBytes(StandardCharsets.UTF_8))) {
+                            LanguageFileUtils.copyFileToFile(target, alreadySavedFile);
+                        }
                     }
                 }
             }

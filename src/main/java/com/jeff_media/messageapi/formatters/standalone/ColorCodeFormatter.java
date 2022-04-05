@@ -1,53 +1,34 @@
-package com.jeff_media.messageapi.formatters.vanilla;
+package com.jeff_media.messageapi.formatters.standalone;
 
 import com.jeff_media.messageapi.formatters.MessageFormatter;
-import org.bukkit.command.CommandSender;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-public class LegacyChatColorFormatter extends MessageFormatter {
+public abstract class ColorCodeFormatter extends MessageFormatter {
 
-    private static final char COLOR_CODE_CHAR = '&';
-    private static final char LEGACY_COLOR_CODE_CHAR = '§';
-    public static final String COLOR_CODES = "0123456789AaBbCcDdEeFfKkLlMmNnOoRr";
-    private static final int COLOR_CODE_LENGTH = 2;
+    protected static final char COLOR_CODE_CHAR = '&';
+    protected static final char LEGACY_COLOR_CODE_CHAR = '§';
+    protected static final String LEGACY_COLOR_AND_FORMATTING_CODES = "0123456789AaBbCcDdEeFfKkLlMmNnOoRr";
+    protected static final String LEGACY_HEX_COLOR_CODES = "0123456789AaBbCcDdEeFf";
+    //protected static final int COLOR_CODE_LENGTH = 2;
+    protected static final int HEX_COLOR_CODE_LENGTH = 14;
 
-    @Override
-    public String format(String string, CommandSender player) {
-        return translateLegacyColorCodes(string);
+    protected static boolean isHexColorCodeChar(char character) {
+        return character == 'x' || character == 'X';
     }
 
-    public static boolean isColorCodeChar(char character) {
-        // Yes, both are needed.
-        return character == COLOR_CODE_CHAR || character == LEGACY_COLOR_CODE_CHAR;
-    }
-
-    private static String translateLegacyColorCodes(String text) {
-        char[] b = text.toCharArray();
-        StringBuilder buffer = new StringBuilder();
-        applyRegularColors(b, buffer);
-        return buffer.toString();
-    }
-
-
-
-    private static void applyRegularColors(char[] b, StringBuilder buffer) {
-        for(int i = 0; i < b.length - COLOR_CODE_LENGTH + 1; ++i) {
-            // TODO: Legacy Hex Colors
-            if (isColorCodeChar(b[i]) && COLOR_CODES.indexOf(b[i + 1]) > -1) {
-                LegacyColor color = LegacyColor.of(b[i+1]);
-                buffer.append(color.toAdventureTag());
-                i++;
-            } else {
-                buffer.append(b[i]);
-            }
+    protected static void debug(char[] arr) {
+        for(int i = 0; i < arr.length; i++) {
+            System.out.println(i + " -> " + arr[i]);
         }
     }
 
-    static class LegacyColor {
+    protected static boolean isPartOf(char character, String string) {
+        return string.indexOf(character) > -1;
+    }
+
+    protected static class LegacyColor {
 
         private static final Map<Character,LegacyColor> BY_CHAR = new HashMap<>();
 

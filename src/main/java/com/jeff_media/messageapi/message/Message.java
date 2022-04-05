@@ -12,10 +12,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -64,10 +61,14 @@ public class Message extends AbstractMessage {
 
     private String applyPluginPlaceholders(String line, CommandSender sender) {
         for (MessageFormatter hook : Msg.getMessageFormatters()) {
-            System.out.println(hook.getClass().getName());
-            System.out.println("Before: " + line);
+            String oldLine = line;
             line = hook.format(line, sender);
-            System.out.println("After:  " + line);
+            if(!oldLine.equals(line)) {
+                System.out.println(hook.getClass().getSimpleName() + " has changed the text:");
+                System.out.println("Before: " + Arrays.toString(oldLine.toCharArray()));
+                System.out.println("After : " + Arrays.toString(line.toCharArray()));
+                System.out.println(" ");
+            }
         }
         return line;
     }
