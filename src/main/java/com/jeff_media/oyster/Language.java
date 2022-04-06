@@ -1,6 +1,6 @@
-package com.jeff_media.messageapi;
+package com.jeff_media.oyster;
 
-import com.jeff_media.messageapi.message.Message;
+import com.jeff_media.oyster.message.Message;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -21,6 +21,7 @@ public class Language {
         for (final String key : config.getKeys(true)) {
             if (config.isConfigurationSection(key)) continue;
             final List<String> list;
+            https://jeff-media.com
             if (config.isString(key)) {
                 list = Collections.singletonList(config.getString(key));
             } else {

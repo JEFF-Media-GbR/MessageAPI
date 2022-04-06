@@ -1,6 +1,6 @@
-package com.jeff_media.messageapi.formatters.standalone;
+package com.jeff_media.oyster.formatters.standalone;
 
-import com.jeff_media.messageapi.formatters.MessageFormatter;
+import com.jeff_media.oyster.formatters.MessageFormatter;
 
 import java.util.HashMap;
 import java.util.Map;

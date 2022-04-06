@@ -1,6 +1,7 @@
-package com.jeff_media.messageapi.formatters.standalone;
+package com.jeff_media.oyster.formatters.standalone;
 
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -8,7 +9,7 @@ import java.util.Map;
 public class HexColorCodeFormatter extends ColorCodeFormatter {
 
     @Override
-    public String format(final String string, final CommandSender player) {
+    public String format(final @NotNull String string, final CommandSender player) {
         final Map<Integer, char[]> foundColorCodes = new HashMap<>();
         final char[] arr = string.toCharArray();
         int currentOffset = 0;
@@ -47,6 +48,11 @@ public class HexColorCodeFormatter extends ColorCodeFormatter {
             }
             foundColorCodes.put(index, hex);
         }
+
+        // If there was no hex code, don't do anything
+        if(foundColorCodes.isEmpty()) return string;
+
+        // Replace all hex codes with an adventure tag
         final StringBuilder builder = new StringBuilder();
         for (int index = 0; index < arr.length; index++) {
             if (!foundColorCodes.containsKey(index)) {

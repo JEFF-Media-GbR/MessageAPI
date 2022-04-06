@@ -1,6 +1,6 @@
-package com.jeff_media.messageapi.utils;
+package com.jeff_media.oyster.utils;
 
-import com.jeff_media.messageapi.Msg;
+import com.jeff_media.oyster.Msg;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;

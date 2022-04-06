@@ -1,6 +1,6 @@
-package com.jeff_media.messageapi.message;
+package com.jeff_media.oyster.message;
 
-import com.jeff_media.messageapi.Msg;
+import com.jeff_media.oyster.Msg;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.bukkit.command.CommandSender;

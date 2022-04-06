@@ -1,10 +1,11 @@
-package com.jeff_media.messageapi.formatters.plugin;
+package com.jeff_media.oyster.formatters.plugin;
 
-import com.jeff_media.messageapi.formatters.PluginMessageFormatter;
+import com.jeff_media.oyster.formatters.PluginMessageFormatter;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
 
 public class PlaceholderAPIFormatter extends PluginMessageFormatter {
 
@@ -13,7 +14,7 @@ public class PlaceholderAPIFormatter extends PluginMessageFormatter {
     }
 
     @Override
-    public String format(final String string, final CommandSender sender) {
+    public String format(final @NotNull String string, final CommandSender sender) {
         return PlaceholderAPI.setPlaceholders(sender instanceof OfflinePlayer ? (OfflinePlayer) sender : null, string);
     }
 }

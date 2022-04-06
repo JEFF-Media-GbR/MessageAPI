@@ -1,38 +1,35 @@
-package com.jeff_media.messageapi;
+package com.jeff_media.oyster;
 
-import com.jeff_media.messageapi.formatters.MessageFormatter;
-import com.jeff_media.messageapi.formatters.PluginMessageFormatter;
-import com.jeff_media.messageapi.formatters.plugin.ItemsAdderFormatter;
-import com.jeff_media.messageapi.formatters.plugin.PlaceholderAPIFormatter;
-import com.jeff_media.messageapi.formatters.standalone.HexColorCodeFormatter;
-import com.jeff_media.messageapi.formatters.standalone.SingleColorCodeFormatter;
-import com.jeff_media.messageapi.message.Message;
-import com.jeff_media.messageapi.message.TitleMessage;
-import com.jeff_media.messageapi.utils.LanguageFileUtils;
+import com.jeff_media.oyster.formatters.FormattingPhase;
+import com.jeff_media.oyster.formatters.MessageFormatter;
+import com.jeff_media.oyster.formatters.PluginMessageFormatter;
+import com.jeff_media.oyster.formatters.plugin.ItemsAdderFormatter;
+import com.jeff_media.oyster.formatters.plugin.PlaceholderAPIFormatter;
+import com.jeff_media.oyster.formatters.standalone.HexColorCodeFormatter;
+import com.jeff_media.oyster.formatters.standalone.SingleColorCodeFormatter;
+import com.jeff_media.oyster.message.Message;
+import com.jeff_media.oyster.message.TitleMessage;
+import com.jeff_media.oyster.utils.LanguageFileUtils;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 /**
- * Main MessageAPI class. This should be the entry point for everything you do using this API.
+ * Main OysterMessage class. This should be the entry point for everything you do using this API.
  */
 public class Msg {
 
     private static final String LANGUAGE_FOLDER_NAME = "languages";
-    private static final List<MessageFormatter> MESSAGE_FORMATTERS = new ArrayList<>();
+    private static final EnumMap<FormattingPhase,List<MessageFormatter>> MESSAGE_FORMATTERS = new EnumMap<>(FormattingPhase.class);
     static File languageFolderFile;
     private static BukkitAudiences audience;
     private static Plugin plugin;
@@ -68,10 +65,12 @@ public class Msg {
     }
 
     private static void registerMessageFormatters() {
-        registerFormatter(HexColorCodeFormatter::new);
-        registerPluginFormatter("PlaceholderAPI", PlaceholderAPIFormatter::new);
-        registerPluginFormatter("ItemsAdder", ItemsAdderFormatter::new);
-        registerFormatter(SingleColorCodeFormatter::new);
+        registerFormatter(FormattingPhase.PARSE, HexColorCodeFormatter::new);
+        registerFormatter(FormattingPhase.PARSE,SingleColorCodeFormatter::new);
+        registerPluginFormatter(FormattingPhase.MANUAL,PlaceholderAPIFormatter::new, "PlaceholderAPI");
+        registerPluginFormatter(FormattingPhase.MANUAL,ItemsAdderFormatter::new, "ItemsAdder");
+        registerFormatter(FormattingPhase.BAKE, HexColorCodeFormatter::new);
+        registerFormatter(FormattingPhase.BAKE,SingleColorCodeFormatter::new);
     }
 
     private static void loadLanguageFile(final String language) {
@@ -94,14 +93,14 @@ public class Msg {
         }
     }
 
-    private static void registerFormatter(final Supplier<? extends MessageFormatter> supplier) {
-        MESSAGE_FORMATTERS.add(supplier.get());
+    private static void registerFormatter(final FormattingPhase phase, final Supplier<? extends MessageFormatter> supplier) {
+        MESSAGE_FORMATTERS.computeIfAbsent(phase, __ -> new ArrayList<>()).add(supplier.get());
     }
 
-    private static void registerPluginFormatter(final String pluginName, final PluginMessageFormatter.Constructor constructor) {
+    private static void registerPluginFormatter(final FormattingPhase phase, final PluginMessageFormatter.Constructor constructor, final String pluginName) {
         final Plugin plugin = Bukkit.getPluginManager().getPlugin(pluginName);
         if (plugin != null) {
-            MESSAGE_FORMATTERS.add(constructor.create(plugin));
+            registerFormatter(phase, () -> constructor.create(plugin));
         }
     }
 
@@ -135,8 +134,8 @@ public class Msg {
      * Gets a {@link List} of all registered {@link MessageFormatter}s
      */
     @NotNull
-    public static List<MessageFormatter> getMessageFormatters() {
-        return MESSAGE_FORMATTERS;
+    public static List<MessageFormatter> getMessageFormatters(@NotNull final FormattingPhase phase) {
+        return MESSAGE_FORMATTERS.get(phase);
     }
 
     @NotNull

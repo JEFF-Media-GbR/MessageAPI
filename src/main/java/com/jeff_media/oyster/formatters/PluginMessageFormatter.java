@@ -1,4 +1,4 @@
-package com.jeff_media.messageapi.formatters;
+package com.jeff_media.oyster.formatters;
 
 import org.bukkit.plugin.Plugin;
 

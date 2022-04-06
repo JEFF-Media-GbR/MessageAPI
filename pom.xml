@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.jeff_media</groupId>
-    <artifactId>MessageAPI</artifactId>
+    <artifactId>OysterMessage</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -33,7 +33,7 @@
                     <relocations>
                         <relocation>
                             <pattern>net.kyori</pattern>
-                            <shadedPattern>com.jeff_media.messageapi.libs.net.kyori</shadedPattern>
+                            <shadedPattern>com.jeff_media.oyster.libs.net.kyori</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>

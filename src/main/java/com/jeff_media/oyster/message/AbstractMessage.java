@@ -1,4 +1,4 @@
-package com.jeff_media.messageapi.message;
+package com.jeff_media.oyster.message;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;

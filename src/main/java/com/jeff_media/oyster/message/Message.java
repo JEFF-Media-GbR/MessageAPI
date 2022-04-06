@@ -1,7 +1,8 @@
-package com.jeff_media.messageapi.message;
+package com.jeff_media.oyster.message;
 
-import com.jeff_media.messageapi.Msg;
-import com.jeff_media.messageapi.formatters.MessageFormatter;
+import com.jeff_media.oyster.Msg;
+import com.jeff_media.oyster.formatters.FormattingPhase;
+import com.jeff_media.oyster.formatters.MessageFormatter;
 import net.kyori.adventure.platform.bukkit.BukkitComponentSerializer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -43,7 +44,13 @@ public class Message extends AbstractMessage {
 
     public Message(final List<String> lines) {
         super();
-        this.lines = lines.stream().map(line -> line == null ? "" : line).collect(Collectors.toList());
+        this.lines = lines.stream().map(line -> {
+            if(line == null) return "";
+            for(final MessageFormatter formatter : Msg.getMessageFormatters(FormattingPhase.PARSE)) {
+                line = formatter.format(line, null);
+            }
+            return line;
+        }).collect(Collectors.toList());
     }
 
 
@@ -53,8 +60,7 @@ public class Message extends AbstractMessage {
     }
 
     private String applyPluginPlaceholders(String line, final CommandSender sender) {
-        for (final MessageFormatter hook : Msg.getMessageFormatters()) {
-            final String oldLine = line;
+        for (final MessageFormatter hook : Msg.getMessageFormatters(FormattingPhase.MANUAL)) {
             line = hook.format(line, sender);
         }
         return line;
@@ -76,18 +82,23 @@ public class Message extends AbstractMessage {
 
 
     public void sendTo(final CommandSender sender) {
-        components().forEach(component -> Msg.audience().sender(sender).sendMessage(component));
+        bake().forEach(component -> Msg.audience().sender(sender).sendMessage(component));
     }
 
     /**
      * Converts this message into a list of line-separated {@link Component}s
      */
     public List<Component> asAdventureComponents() {
-        return components();
+        return bake();
     }
 
-    private List<Component> components() {
-        return lines.stream().map(MINIMESSAGE::deserialize).collect(Collectors.toList());
+    private List<Component> bake() {
+        return lines.stream().map(line -> {
+            for(final MessageFormatter formatter : Msg.getMessageFormatters(FormattingPhase.BAKE)) {
+                line = formatter.format(line, null);
+            }
+            return MINIMESSAGE.deserialize(line);
+        }).collect(Collectors.toList());
     }
 
     /**
@@ -143,7 +154,7 @@ public class Message extends AbstractMessage {
      * Converts this message into a line-separated list of legacy-formatted Strings. Click and Hover events will be lost.
      */
     public List<String> asStringList() {
-        return components().stream().map(component -> BukkitComponentSerializer.legacy().serialize(component)).collect(Collectors.toList());
+        return bake().stream().map(component -> BukkitComponentSerializer.legacy().serialize(component)).collect(Collectors.toList());
     }
 
     public String asPlainText() {
@@ -151,21 +162,21 @@ public class Message extends AbstractMessage {
     }
 
     public List<String> asPlainTextList() {
-        return components().stream().map(component -> PlainTextComponentSerializer.plainText().serialize(component)).collect(Collectors.toList());
+        return bake().stream().map(component -> PlainTextComponentSerializer.plainText().serialize(component)).collect(Collectors.toList());
     }
 
     /**
      * Converts this message into a line-separated list of JSON Strings.
      */
     public List<String> asJsonList() {
-        return components().stream().map(component -> BukkitComponentSerializer.gson().serialize(component)).collect(Collectors.toList());
+        return bake().stream().map(component -> BukkitComponentSerializer.gson().serialize(component)).collect(Collectors.toList());
     }
 
     /**
      * Converts this message into a line-separated list of {@link BaseComponent[]}s
      */
     public List<BaseComponent[]> asBaseComponentsList() {
-        return components().stream().map(component -> BungeeComponentSerializer.get().serialize(component)).collect(Collectors.toList());
+        return bake().stream().map(component -> BungeeComponentSerializer.get().serialize(component)).collect(Collectors.toList());
     }
 
     @Override
