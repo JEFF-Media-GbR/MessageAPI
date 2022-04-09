@@ -11,7 +11,6 @@ public abstract class ColorCodeFormatter extends MessageFormatter {
     protected static final char LEGACY_COLOR_CODE_CHAR = '§';
     protected static final String LEGACY_COLOR_AND_FORMATTING_CODES = "0123456789AaBbCcDdEeFfKkLlMmNnOoRr";
     protected static final String LEGACY_HEX_COLOR_CODES = "0123456789AaBbCcDdEeFf";
-    //protected static final int COLOR_CODE_LENGTH = 2;
     protected static final int HEX_COLOR_CODE_LENGTH = 14;
 
     protected static boolean isHexColorCodeChar(final char character) {
@@ -28,6 +27,8 @@ public abstract class ColorCodeFormatter extends MessageFormatter {
     }
 
     protected static class LegacyColor {
+
+        private static final Map<Character, LegacyColor> BY_CHAR = new HashMap<>();
 
         static final LegacyColor BLACK = new LegacyColor('0', 0x000000);
         static final LegacyColor DARK_BLUE = new LegacyColor('1', 0x0000AA);
@@ -51,7 +52,6 @@ public abstract class ColorCodeFormatter extends MessageFormatter {
         static final LegacyColor UNDERLINE = new LegacyColor('n', "u");
         static final LegacyColor ITALIC = new LegacyColor('o', "i");
         static final LegacyColor RESET = new LegacyColor('r', "r");
-        private static final Map<Character, LegacyColor> BY_CHAR = new HashMap<>();
         private final char character;
         private final String adventureTag;
 

@@ -135,7 +135,7 @@ public class Msg {
      */
     @NotNull
     public static List<MessageFormatter> getMessageFormatters(@NotNull final FormattingPhase phase) {
-        return MESSAGE_FORMATTERS.get(phase);
+        return MESSAGE_FORMATTERS.computeIfAbsent(phase, __ -> new ArrayList<>());
     }
 
     @NotNull
